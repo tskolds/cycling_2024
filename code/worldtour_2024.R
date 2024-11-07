@@ -7,7 +7,7 @@ library(tidyverse)
 library(gridExtra)
 
 # Import Data
-worldtour_2024 <- read_csv(file = "../data/worldtour_2024.csv") %>%
+worldtour_2024 <- read_csv(file = "./worldtour_2024.csv") %>%
   filter(!is.na(Winner),
          !is.na(Team)) %>%
   rename("TeamStatus" = "Team Status")
@@ -72,45 +72,6 @@ top_10_riders <- worldtour_2024 %>%
   summarize(Wins = n(), .groups = 'drop') %>%
   slice_max(n = 11, order_by = Wins)
 print(top_10_riders)
-
-# Map of Pogi's wins
-pogi_wins <- worldtour_2024 %>%
-  filter(Winner == "T. Pogacar") %>%
-  group_by(Country) %>%
-  summarise(Wins = n())
-
-library(sf)
-
-europe_geo_data <- st_read("../data/europe.geojson") %>%
-  rename("Country" = "NAME")
-
-pogi_data_merged <- europe_geo_data %>%
-  left_join(pogi_wins,
-            by = "Country")
-
-ggplot(data = pogi_data_merged) +
-  geom_sf(aes(fill = Wins),
-          linewidth = 0,
-          alpha = 0.9) +
-  theme_void() +
-  scale_fill_viridis_c(
-    trans = "log", breaks = seq(from = 1,
-                                to = 10,
-                                by = 1),
-    name = "Number of Wins",
-    guide = guide_legend(
-      keyheight = unit(1, units = "mm"),
-      keywidth = unit(4, units = "mm"),
-      label.position = "bottom",
-      title.position = "top",
-      nrow = 1)) +
-  theme(legend.position = c(0.3,0.1)) +
-  labs(title = "T. Pogacar 2024 WorldTour Wins",
-       caption = "NOTE: One win in Canada
-       Data from FirstCycling")
-
-
-
 
 
 
